@@ -14,8 +14,10 @@ SOCKET_CHANNEL="butterfly-chat"
 # Protobuf object
 message ChatMessage {
   string message = 1;
-  int32 from_user_id = 2;
-  int32 to_user_id = 3;
+  string from_user_id = 2;
+  string to_user_id = 3;
+  string attachment_url  = 4;
+  string channel_name = 5;
 }
 
 # Pre requisite
