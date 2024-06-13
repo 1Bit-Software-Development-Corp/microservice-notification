@@ -21,7 +21,6 @@ message ChatMessage {
 # Pre requisite
 npm install
 
-npm build
 
 # NPM Command
 start:server
