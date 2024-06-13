@@ -33,14 +33,14 @@ io.on('connection', (socket) => {
     const messageObj = {
       message: message.getMessage(),
       fromUserId: message.getFromUserId(),
-      toUserId: message.getToUserId()
+      toUserId: message.getToUserId(),
+      attachment: message.getAttachmentUrl(),
+      privateChannel: message.getChannelName()
     };
 
     console.log('Message decoded:', messageObj);
     //emit back to react app
-    io.emit(socketChannel, data);
-    //for local test only if connecting to redis
-    redis.set(redisChannel, data.toString('binary'));
+    io.emit(socketChannel + '_' + message.getChannelName(), data);
     //publish for subscriber
     redis.publish(redisChannel, data.toString('binary'));
     console.log("Published %s to %s", data, redisChannel);

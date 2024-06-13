@@ -76,8 +76,10 @@ proto.ChatMessage.prototype.toObject = function(opt_includeInstance) {
 proto.ChatMessage.toObject = function(includeInstance, msg) {
   var f, obj = {
     message: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    fromUserId: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    toUserId: jspb.Message.getFieldWithDefault(msg, 3, 0)
+    fromUserId: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    toUserId: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    attachmentUrl: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    channelName: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
   if (includeInstance) {
@@ -119,12 +121,20 @@ proto.ChatMessage.deserializeBinaryFromReader = function(msg, reader) {
       msg.setMessage(value);
       break;
     case 2:
-      var value = /** @type {number} */ (reader.readInt32());
+      var value = /** @type {string} */ (reader.readString());
       msg.setFromUserId(value);
       break;
     case 3:
-      var value = /** @type {number} */ (reader.readInt32());
+      var value = /** @type {string} */ (reader.readString());
       msg.setToUserId(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAttachmentUrl(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setChannelName(value);
       break;
     default:
       reader.skipField();
@@ -163,16 +173,30 @@ proto.ChatMessage.serializeBinaryToWriter = function(message, writer) {
     );
   }
   f = message.getFromUserId();
-  if (f !== 0) {
-    writer.writeInt32(
+  if (f.length > 0) {
+    writer.writeString(
       2,
       f
     );
   }
   f = message.getToUserId();
-  if (f !== 0) {
-    writer.writeInt32(
+  if (f.length > 0) {
+    writer.writeString(
       3,
+      f
+    );
+  }
+  f = message.getAttachmentUrl();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
+  f = message.getChannelName();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
       f
     );
   }
@@ -198,38 +222,74 @@ proto.ChatMessage.prototype.setMessage = function(value) {
 
 
 /**
- * optional int32 from_user_id = 2;
- * @return {number}
+ * optional string from_user_id = 2;
+ * @return {string}
  */
 proto.ChatMessage.prototype.getFromUserId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
 /**
- * @param {number} value
+ * @param {string} value
  * @return {!proto.ChatMessage} returns this
  */
 proto.ChatMessage.prototype.setFromUserId = function(value) {
-  return jspb.Message.setProto3IntField(this, 2, value);
+  return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
- * optional int32 to_user_id = 3;
- * @return {number}
+ * optional string to_user_id = 3;
+ * @return {string}
  */
 proto.ChatMessage.prototype.getToUserId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
 /**
- * @param {number} value
+ * @param {string} value
  * @return {!proto.ChatMessage} returns this
  */
 proto.ChatMessage.prototype.setToUserId = function(value) {
-  return jspb.Message.setProto3IntField(this, 3, value);
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string attachment_url = 4;
+ * @return {string}
+ */
+proto.ChatMessage.prototype.getAttachmentUrl = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.ChatMessage} returns this
+ */
+proto.ChatMessage.prototype.setAttachmentUrl = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional string channel_name = 5;
+ * @return {string}
+ */
+proto.ChatMessage.prototype.getChannelName = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.ChatMessage} returns this
+ */
+proto.ChatMessage.prototype.setChannelName = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
