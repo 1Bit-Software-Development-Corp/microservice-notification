@@ -26,6 +26,9 @@ npm build
 # NPM Command
 start:server
 
+# Sample Chat React App Using Microservice
+https://github.com/1Bit-Software-Development-Corp/sample-chat
+
 
 # Microservice Purpose
 ![image](https://github.com/1Bit-Software-Development-Corp/microservice-notification/assets/167732876/790ede86-1fa0-4d82-abf6-3fdd1d8158c4)
