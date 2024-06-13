@@ -18,6 +18,11 @@ message ChatMessage {
   int32 to_user_id = 3;
 }
 
+# Pre requisite
+npm install
+
+npm build
+
 # NPM Command
 start:server
 
