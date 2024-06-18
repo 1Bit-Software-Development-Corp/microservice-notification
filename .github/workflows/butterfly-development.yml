@@ -34,8 +34,8 @@ jobs:
 
         - name: Set path and Check pm2 version
           run: |
-                  export PATH="$PATH:/home/admin/.nvm/versions/node/v20.12.2/bin/pm2"
-                  ssh admin@18.136.247.108 "pm2 -v"
+                  echo "PATH is: $PATH"
+                  ssh admin@18.136.247.108 "echo \$PATH; pm2 -v"
         
         - name: Restart instance
           run: ssh admin@18.136.247.108 "pm2 restart microservice-notification"
