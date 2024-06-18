@@ -6,9 +6,8 @@ git reset --hard
 git clean -df
 git pull
 
-
-# Install dependencies
-npm install
+bash -i -c 'npm install'
+bash -i -c 'pm2 restart microservice-notification'
 
 COMMIT_AUTHOR=$(git log -1 --pretty=%an | cat)
 COMMIT_MESSAGE=$(git log -1 --pretty=%B | cat | tr -d '"' | sed '/^[[:space:]]*$/d')
