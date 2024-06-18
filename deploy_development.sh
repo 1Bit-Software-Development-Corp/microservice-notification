@@ -20,4 +20,4 @@ COMMIT_AUTHOR=$(git log -1 --pretty=%an | cat)
 COMMIT_MESSAGE=$(git log -1 --pretty=%B | cat | tr -d '"' | sed '/^[[:space:]]*$/d')
 
 
-./notif.sh "butterfly-api-BE deployment on Development server completed [${COMMIT_AUTHOR}]: ${COMMIT_MESSAGE}"
+./notif.sh "Butterfly Notification Websocket microservice deployment on Development server completed [${COMMIT_AUTHOR}]: ${COMMIT_MESSAGE}"
