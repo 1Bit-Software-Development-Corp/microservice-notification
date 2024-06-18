@@ -32,10 +32,8 @@ jobs:
         - name: Deploy
           run: ssh admin@18.136.247.108 "cd /var/www/microservice.notification.com && sh ./deploy_development.sh"
 
-        - name: Set path and Check pm2 version
-          run: |
-                  echo "PATH is: $PATH"
-                  ssh admin@18.136.247.108 "echo \$PATH; pm2 -v"
+        - name: Check pm2 version
+          run: ssh admin@18.136.247.108 "/usr/local/bin/pm2 pm2 -v"
         
         - name: Restart instance
-          run: ssh admin@18.136.247.108 "pm2 restart microservice-notification"
+          run: ssh admin@18.136.247.108 "/usr/local/bin/pm2 restart microservice-notification"
