@@ -16,11 +16,25 @@ const io = socketIo(server, {
   }
 });
 
-const redis = new Redis({
+let redis;
+try {
+  redis = new Redis({
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST, 
     db: process.env.REDIS_DB
-});
+  });
+  redis.on('connect', () => {
+    console.log('Successfully connected to Redis');
+  });
+
+  redis.on('error', (err) => {
+    console.error('Redis connection error:', err);
+  });
+
+} catch (error) {
+  console.error('Failed to connect to Redis:', error);
+  process.exit(1); // Exit the process if Redis connection fails
+}
 
 //check socket io
 io.on('connection', (socket) => {
