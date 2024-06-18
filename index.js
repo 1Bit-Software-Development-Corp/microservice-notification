@@ -4,11 +4,15 @@ const socketIo = require('socket.io');
 const Redis = require('ioredis');
 
 const servicePort = process.env.MICROSERVICE_PORT;
-const socketChannel = process.env.SOCKET_CHANNEL;
-const redisChannel = process.env.REDIS_CHANNEL;
+const socketChatChannel = process.env.SOCKET_CHAT_CHANNEL;
+const socketNotifChannel = process.env.SOCKET_NOTIF_CHANNEL;
+const redisChatChannel = process.env.REDIS_CHAT_CHANNEL;
+const redisNotificationChannel = process.env.REDIS_NOTIFICATION_CHANNEL;
 const app = express();
 const server = http.createServer(app);
 const { ChatMessage } = require('./protos/chat_pb');
+const { NotifMessage } = require('./protos/notification_pb');
+const useProtobuf = process.env.USE_PROTOBUF === 'true';
 
 const io = socketIo(server, {
   cors: {
@@ -21,7 +25,8 @@ try {
   redis = new Redis({
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST, 
-    db: process.env.REDIS_DB
+    db: process.env.REDIS_DB,
+    password: process.env.REDIS_PASSWORD || null,
   });
   redis.on('connect', () => {
     console.log('Successfully connected to Redis');
@@ -31,6 +36,14 @@ try {
     console.error('Redis connection error:', err);
   });
 
+  // Subscribe to Notification
+  redis.subscribe(socketNotifChannel, (err, count) => {
+    if (err) {
+      console.error('Failed to subscribe: %s', err.message);
+    } else {
+      console.log(`Subscribed successfully! This client is currently subscribed to ${count} channels.`);
+    }
+  });
 } catch (error) {
   console.error('Failed to connect to Redis:', error);
   process.exit(1); // Exit the process if Redis connection fails
@@ -40,24 +53,48 @@ try {
 io.on('connection', (socket) => {
   console.log('a user connected', socket.id);
 
-  socket.on(socketChannel, (data) => {
+  //Chat Event
+  socket.on(socketChatChannel, (data) => {
     console.log('Message received:', data);
+    
+    if (useProtobuf) {
+      const message = ChatMessage.deserializeBinary(data);
+      const channel = message.getChannelName()
+    } else {
+      const message = JSON.parse(data);
+      const channel = message.privateChannel;
+    }
 
-    const message = ChatMessage.deserializeBinary(data);
-    const messageObj = {
-      message: message.getMessage(),
-      fromUserId: message.getFromUserId(),
-      toUserId: message.getToUserId(),
-      attachment: message.getAttachmentUrl(),
-      privateChannel: message.getChannelName()
-    };
+    io.emit(socketChatChannel + '_' + channel, data);
+    redis.publish(redisChatChannel, data.toString('binary'));
+    console.log("Published %s to %s", data, redisChatChannel);
+  });
 
-    console.log('Message decoded:', messageObj);
-    //emit back to react app
-    io.emit(socketChannel + '_' + message.getChannelName(), data);
-    //publish for subscriber
-    redis.publish(redisChannel, data.toString('binary'));
-    console.log("Published %s to %s", data, redisChannel);
+  //Like, Comment Event
+  socket.on(socketNotifChannel, (data) => {
+    console.log('Notification received:', data);
+
+    if (useProtobuf) {
+      const notification = NotifMessage.deserializeBinary(data);
+      const channel = message.getToUserId();
+    }else {
+      const message = JSON.parse(data);
+      const channel = message.toUserId;
+    }
+
+    io.emit(socketChannel + '_' + channel, notification);
+    redis.publish(redisNotificationChannel, data.toString('binary'));
+    console.log("Published %s to %s", data, redisNotificationChannel);
+  });
+
+  // Listen for messages; Notif from BE
+  redis.on('message', (channel, message) => {
+    console.log(`Received message from ${channel} channel.`);
+    const notification = JSON.parse(data);
+    // Broadcast message to all connected clients
+    if (channel === socketNotifChannel) {
+      io.emit(socketNotifChannel + '_' + message.toUserId, notification);
+    } 
   });
 
   socket.on('disconnect', () => {

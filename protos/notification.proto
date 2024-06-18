@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message NotifMessage {
+  string message = 1;
+  string event = 2;
+  string to_user_id = 3;
+}
