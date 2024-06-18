@@ -48,10 +48,10 @@ try {
   // Listen for messages; Notif from BE
   redis.on('message', (channel, message) => {
     console.log(`Received message from ${channel} channel.`);
-    const notification = data;
+    const notification = JSON.parse(data);
     // Broadcast message to all connected clients
     if (channel === socketNotifChannel) {
-      io.emit(socketNotifChannel + '_' + message.toUserId, notification);
+      io.emit(socketNotifChannel + '_' + notification.user_id, notification);
     } 
   });
 } catch (error) {
