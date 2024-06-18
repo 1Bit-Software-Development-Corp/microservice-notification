@@ -61,11 +61,7 @@ io.on('connection', (socket) => {
       const message = ChatMessage.deserializeBinary(data);
       const channel = message.getChannelName()
     } else {
-      try {
-        const message = JSON.parse(data);
-      } catch (e) {
-        const message = data;
-      }
+      const message = data;
       const channel = message.privateChannel;
     }
 
@@ -82,11 +78,7 @@ io.on('connection', (socket) => {
       const notification = NotifMessage.deserializeBinary(data);
       const channel = message.getToUserId();
     }else {
-      try {
-        const message = JSON.parse(data);
-      } catch (e) {
-        const message = data;
-      }
+      const message = data;
       const channel = message.toUserId;
     }
 
