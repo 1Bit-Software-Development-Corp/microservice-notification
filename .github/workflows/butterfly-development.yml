@@ -31,16 +31,3 @@ jobs:
 
         - name: Deploy
           run: ssh admin@18.136.247.108 "cd /var/www/microservice.notification.com && sh ./deploy_development.sh"
-
-        - name: Set up Node.js
-          uses: actions/setup-node@v2
-          with:
-            node-version: 'v20.12.2'  # Ensure this matches the Node.js version with which PM2 is installed
-
-        - name: Install PM2
-          run: npm install -g pm2@latest
-
-        - name: Restart application instance
-          run: |
-            source /home/admin/.nvm/nvm.sh  # Source NVM setup script
-            pm2 restart microservice-notification
