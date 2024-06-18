@@ -20,6 +20,7 @@ const io = socketIo(server, {
   }
 });
 
+
 let redis;
 try {
   redis = new Redis({
@@ -43,6 +44,15 @@ try {
     } else {
       console.log(`Subscribed successfully! This client is currently subscribed to ${count} channels.`);
     }
+  });
+  // Listen for messages; Notif from BE
+  redis.on('message', (channel, message) => {
+    console.log(`Received message from ${channel} channel.`);
+    const notification = data;
+    // Broadcast message to all connected clients
+    if (channel === socketNotifChannel) {
+      io.emit(socketNotifChannel + '_' + message.toUserId, notification);
+    } 
   });
 } catch (error) {
   console.error('Failed to connect to Redis:', error);
@@ -83,21 +93,10 @@ io.on('connection', (socket) => {
     console.log("Published %s to %s", data, redisNotificationChannel);
   });
 
-  // Listen for messages; Notif from BE
-  redis.on('message', (channel, message) => {
-    console.log(`Received message from ${channel} channel.`);
-    const notification = JSON.parse(data);
-    // Broadcast message to all connected clients
-    if (channel === socketNotifChannel) {
-      io.emit(socketNotifChannel + '_' + message.toUserId, notification);
-    } 
-  });
-
   socket.on('disconnect', () => {
     console.log('user disconnected');
   });
 });
-
 
 server.listen(servicePort, () => {
   console.log(`Server is running on port ${servicePort}`);
