@@ -76,13 +76,18 @@ io.on('connection', (socket) => {
     
     if (useProtobuf) {
       const message = ChatMessage.deserializeBinary(data);
+      var messageObj = {
+        'message': message.getMessage(),
+        'from_id': message.getFromUserId(),
+        'to_id': message.getToUserId()
+      }
       io.emit(socketChatChannel + '_' + message.getChannelName(), data);
     } else {
-      const message = data;
-      io.emit(socketChatChannel + '_' + message.privateChannel, data);
+      var messageObj = data;
+      io.emit(socketChatChannel + '_' + messageObj.privateChannel, data);
     }
-    redisPub.publish(redisChatChannel, data.toString('binary'));
-    console.log("Published %s to %s", data, redisChatChannel);
+    redisPub.publish(socketChatChannel, JSON.stringify(messageObj));
+    console.log("Published %s to %s", data.toString('binary'), socketChatChannel);
   });
 
   //Like, Comment Event
@@ -96,8 +101,8 @@ io.on('connection', (socket) => {
       const message = data;
       io.emit(socketChannel + '_' + message.toUserId, notification);
     }
-    redisPub.publish(redisNotificationChannel, data.toString('binary'));
-    console.log("Published %s to %s", data, redisNotificationChannel);
+    redisPub.publish(socketNotifChannel, data);
+    console.log("Published %s to %s", data, socketNotifChannel);
   });
 
   socket.on('disconnect', () => {
