@@ -17,11 +17,6 @@ jobs:
         - name: Checkout code
           uses: actions/checkout@v2
 
-        - name: Set up Node.js environment
-          uses: actions/setup-node@v2
-          with:
-            node-version: '20.12'  # Adjust Node.js version as needed
-
         - name: Prepare development branch to development VM
           if: ${{ github.ref == 'refs/heads/development' }}  # Only deploy on pushes to the main branch
           uses: webfactory/ssh-agent@v0.7.0
@@ -37,8 +32,15 @@ jobs:
         - name: Deploy
           run: ssh admin@18.136.247.108 "cd /var/www/microservice.notification.com && sh ./deploy_development.sh"
 
-        - name: Check pm2 version
-          run: ssh admin@18.136.247.108 "pm2 -v"
-        
-        - name: Restart instance
-          run: ssh admin@18.136.247.108 "pm2 restart microservice-notification"
+        - name: Set up Node.js
+          uses: actions/setup-node@v2
+          with:
+            node-version: 'v20.12.2'  # Ensure this matches the Node.js version with which PM2 is installed
+
+        - name: Install PM2
+          run: npm install -g pm2@latest
+
+        - name: Restart application instance
+          run: |
+            source /home/admin/.nvm/nvm.sh  # Source NVM setup script
+            pm2 restart microservice-notification
