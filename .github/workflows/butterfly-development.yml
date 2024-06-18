@@ -1,70 +1,32 @@
-# name: Deploy to Butterfly Microservice Notification Development Server
+name: Butterfly Microservice Notification Websocket Development server - Development (butterfly-notification.rocketgaming.online)
 
-# on:
-#   push:
-#     branches: [ "development" ]
-#     tags: [ 'v*.*.*' ]
+on:
+  push:
+    branches:
+      - development
 
-# env:
-#   REGISTRY: docker.io
-#   IMAGE_NAME: 1bitdev/1bit
-#   SERVICE: notification-service
-#   DIRECTORY: butterfly
-#   CONTAINER_NAME: notification.websocket
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
 
-# jobs:
-#   build:
+        env:
+          SITE_PATH: "/var/www/microservice.notification.com"
+          $SITE_BRANCH: "development"
 
-#     runs-on: ubuntu-latest
-#     permissions:
-#       contents: read
-#       packages: write
-#       id-token: write
+        steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
 
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v3
+        - name: Prepare development branch to development VM
+          if: ${{ github.ref == 'refs/heads/development' }}  # Only deploy on pushes to the main branch
+          uses: webfactory/ssh-agent@v0.7.0
+          with:
+            ssh-private-key: ${{ secrets.SERVER_SSH_PRIVATE_KEY_DEVELOPMENT }}
 
-#       - name: Set up Docker Buildx
-#         uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
+        - name: Add hosts
+          run: |
+                  echo "18.136.247.108 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCFmHonEyfEdEQMWC2X0a4pM7Sn7TwXB74I535IxPsT6BFxFKtOBV6j0YYC8fTh+8YN5HrpG9IcvXPLYKgLIWeHlBIvIOJn7cn8tjkQXAwaJqUVYQV7eCX36h+zkcn8Iv8iBuJ8Hu8VZ+o/0LzqKOuOX2kvS0qFsfAb9ppLLvel/jHJ1qkcLx1grIM4U1g3XFq3Wd7qTig2PE8HsWYIww4q/xIJgLhsIGVY69Ubxm+sOkffpIssf+ArdFVPVj/zDPqpbecG48Kc9RDATcMhG4kLku0x2YPw3gFzjqF6aqSyiGE17B+5Q2J6GTo5djE3v4JPc+iGpvgtyZoTBShDmoQmcdv53O2/sW/33Hcc7qdKgWmuKHS9ZSQuSRHR2gmg5GJJFoWI6x5m7W/V3yM93/tsDR5Wfd8fCzVXcRbWn5TQwV9d9bjeSHWcNRq4JtstecVH8ib2BwGdXJYpqxufBMVXpU54V9A0CHo+4ZGerXK/OEZ+9gbLW6c5gZQ9kKmyAI8=" >> ~/.ssh/known_hosts
+                  echo "18.136.247.108 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBKYzsqIDlCBZ1PjV+la+4YddH6891QRExOny2MCNH/6oYRToaTKys1axhHFSQQYS9/cYvraOKw3Sb0xEmD2FPoA=" >> ~/.ssh/known_hosts
+                  echo "18.136.247.108 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA1JMOVN9TRw3uqdbN6UDhA6uBYIoJGAEbRj1RJtz+pH" >> ~/.ssh/known_hosts
 
-#       - name: Log into registry ${{ env.REGISTRY }}
-#         uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
-#         with:
-#           registry: ${{ env.REGISTRY }}
-#           username: ${{ secrets.DOCKER_USERNAME }}
-#           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
-
-#       - name: Extract Docker metadata
-#         id: meta
-#         uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
-#         with:
-#           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
-#       - name: Build and push Docker image
-#         id: build-and-push
-#         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
-#         with:
-#           context: .
-#           push: ${{ github.event_name != 'pull_request' }}
-#           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SERVICE }}-${{ steps.meta.outputs.version }}
-#           labels: ${{ steps.meta.outputs.labels }}
-#           cache-from: type=gha
-#           cache-to: type=gha,mode=max
-
-#       - name: Set up SSH key
-#         uses: webfactory/ssh-agent@v0.7.0
-#         with:
-#           ssh-private-key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
-
-#       - name: Add hosts
-#         run: echo "18.136.247.108 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGVovL268wBjyFFeR8nnJnyKBxmWcGLDgfOt9MMnbfM5" >> ~/.ssh/known_hosts
-
-#       - name: Deploy Docker image and restart container
-#         run: |
-#           ssh admin@18.136.247.108 "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SERVICE }}-${{ steps.meta.outputs.version }}"
-#           ssh admin@18.136.247.108 "cd /home/admin/projects/${{ env.DIRECTORY }} && docker compose up -d ${{ env.SERVICE }} --force-recreate"
-#           ssh admin@18.136.247.108 "cd /home/admin/projects/${{ env.DIRECTORY }} && docker exec ${{ env.CONTAINER_NAME }} bash -c 'source deploy.sh'"
-
-#       - name: Sent deployment notification
-#         run: ./notif.sh "🎉Fortune Production (rg.games) - Fortune API service deployed successfully"
+        - run: ssh admin@18.136.247.108 "cd /var/www/microservice.notification.com && sh ./deploy_development.sh"
