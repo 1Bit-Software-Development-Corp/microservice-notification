@@ -1,15 +1,34 @@
 # ENV Sample
-MICROSERVICE_PORT=3000
+MICROSERVICE_PORT=3001
+
+
+//REDIS CONFIGS
 
 REDIS_PORT=6379
 
 REDIS_HOST="192.168.56.56"
 
+REDIS_PREFIX="butterfly"
+
 REDIS_DB=0
 
-REDIS_CHANNEL="butterfly-chat"
+REDIS_PASSWORD=null
 
-SOCKET_CHANNEL="butterfly-chat"
+USE_PROTOBUF=false
+
+
+//CHAT CONFIGS
+
+REDIS_CHAT_CHANNEL="chat"
+
+SOCKET_CHAT_CHANNEL="butterfly_chat"
+
+
+//REDIS NOTIFICATION CONFIGS
+
+REDIS_NOTIFICATION_CHANNEL="notification"
+
+SOCKET_NOTIF_CHANNEL="butterfly_notification"
 
 # Protobuf object
 message ChatMessage {
