@@ -97,13 +97,18 @@ io.on('connection', (socket) => {
 
     if (useProtobuf) {
       const notification = NotifMessage.deserializeBinary(data);
-      io.emit(socketChannel + '_' + message.getToUserId(), notification);
+      var notificationObj = {
+        'message': notification.getMessage(),
+        'from_id': notification.getFromUserId(),
+        'to_id': notification.getToUserId()
+      }
+      io.emit(socketChannel + '_' + notification.getToUserId(), notification);
     }else {
-      const message = data;
-      io.emit(socketChannel + '_' + message.toUserId, notification);
+      const notificationObj = data;
+      io.emit(socketChannel + '_' + notificationObj.toUserId, notification);
     }
-    redisPub.publish(socketNotifChannel, data);
-    console.log("Published %s to %s", data, socketNotifChannel);
+    redisPub.publish(socketNotifChannel, JSON.stringify(notificationObj));
+    console.log("Published %s to %s", data.toString('binary'), socketNotifChannel);
   });
 
   socket.on('disconnect', () => {
