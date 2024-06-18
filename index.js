@@ -23,22 +23,22 @@ const io = socketIo(server, {
 
 let redis;
 try {
-  redis = new Redis({
+  redisSub = new Redis({
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST, 
     db: process.env.REDIS_DB,
     password: process.env.REDIS_PASSWORD || null,
   });
-  redis.on('connect', () => {
+  redisSub.on('connect', () => {
     console.log('Successfully connected to Redis');
   });
 
-  redis.on('error', (err) => {
+  redisSub.on('error', (err) => {
     console.error('Redis connection error:', err);
   });
 
   // Subscribe to Notification
-  redis.subscribe(socketNotifChannel, (err, count) => {
+  redisSub.subscribe(socketNotifChannel, (err, count) => {
     if (err) {
       console.error('Failed to subscribe: %s', err.message);
     } else {
@@ -46,7 +46,7 @@ try {
     }
   });
   // Listen for messages; Notif from BE
-  redis.on('message', (channel, message) => {
+  redisSub.on('message', (channel, message) => {
     console.log(`Received message from ${channel} channel.`);
     const notification = JSON.parse(data);
     // Broadcast message to all connected clients
@@ -59,6 +59,13 @@ try {
   process.exit(1); // Exit the process if Redis connection fails
 }
 
+
+redisPub = new Redis({
+  port: process.env.REDIS_PORT,
+  host: process.env.REDIS_HOST, 
+  db: process.env.REDIS_DB,
+  password: process.env.REDIS_PASSWORD || null,
+});
 //check socket io
 io.on('connection', (socket) => {
   console.log('a user connected', socket.id);
@@ -74,7 +81,7 @@ io.on('connection', (socket) => {
       const message = data;
       io.emit(socketChatChannel + '_' + message.privateChannel, data);
     }
-    redis.publish(redisChatChannel, data.toString('binary'));
+    redisPub.publish(redisChatChannel, data.toString('binary'));
     console.log("Published %s to %s", data, redisChatChannel);
   });
 
@@ -89,7 +96,7 @@ io.on('connection', (socket) => {
       const message = data;
       io.emit(socketChannel + '_' + message.toUserId, notification);
     }
-    redis.publish(redisNotificationChannel, data.toString('binary'));
+    redisPub.publish(redisNotificationChannel, data.toString('binary'));
     console.log("Published %s to %s", data, redisNotificationChannel);
   });
 
