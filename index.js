@@ -59,13 +59,11 @@ io.on('connection', (socket) => {
     
     if (useProtobuf) {
       const message = ChatMessage.deserializeBinary(data);
-      const channel = message.getChannelName()
+      io.emit(socketChatChannel + '_' + message.getChannelName(), data);
     } else {
       const message = data;
-      const channel = message.privateChannel;
+      io.emit(socketChatChannel + '_' + message.privateChannel, data);
     }
-
-    io.emit(socketChatChannel + '_' + channel, data);
     redis.publish(redisChatChannel, data.toString('binary'));
     console.log("Published %s to %s", data, redisChatChannel);
   });
@@ -76,13 +74,11 @@ io.on('connection', (socket) => {
 
     if (useProtobuf) {
       const notification = NotifMessage.deserializeBinary(data);
-      const channel = message.getToUserId();
+      io.emit(socketChannel + '_' + message.getToUserId(), notification);
     }else {
       const message = data;
-      const channel = message.toUserId;
+      io.emit(socketChannel + '_' + message.toUserId, notification);
     }
-
-    io.emit(socketChannel + '_' + channel, notification);
     redis.publish(redisNotificationChannel, data.toString('binary'));
     console.log("Published %s to %s", data, redisNotificationChannel);
   });
