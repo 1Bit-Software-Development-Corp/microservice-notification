@@ -29,5 +29,13 @@ jobs:
                   echo "18.136.247.108 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBKYzsqIDlCBZ1PjV+la+4YddH6891QRExOny2MCNH/6oYRToaTKys1axhHFSQQYS9/cYvraOKw3Sb0xEmD2FPoA=" >> ~/.ssh/known_hosts
                   echo "18.136.247.108 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA1JMOVN9TRw3uqdbN6UDhA6uBYIoJGAEbRj1RJtz+pH" >> ~/.ssh/known_hosts
 
-        - run: ssh admin@18.136.247.108 "cd /var/www/microservice.notification.com && sh ./deploy_development.sh"
-        - run: ssh admin@18.136.247.108 "cd /var/www/microservice.notification.com && npm run pm2 restart microservice-notification"
+        - name: Deploy
+          run: ssh admin@18.136.247.108 "cd /var/www/microservice.notification.com && sh ./deploy_development.sh"
+
+        - name: Set path and Check pm2 version
+          run: |
+                  export PATH="$PATH:/home/admin/.nvm/versions/node/v20.12.2/bin/pm2"
+                  ssh admin@18.136.247.108 "pm2 -v"
+        
+        - name: Restart instance
+          run: ssh admin@18.136.247.108 "pm2 restart microservice-notification"
