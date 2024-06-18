@@ -1,0 +1,46 @@
+name: Butterfly Microservice Notification Websocket Development server - Development (butterfly-notification.rocketgaming.online)
+
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+
+        env:
+          SITE_PATH: "/var/www/microservice.notification.com"
+          $SITE_BRANCH: "development"
+
+        steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+
+        - name: Prepare development branch to development VM
+          if: ${{ github.ref == 'refs/heads/development' }}  # Only deploy on pushes to the main branch
+          uses: webfactory/ssh-agent@v0.7.0
+          with:
+            ssh-private-key: ${{ secrets.SERVER_SSH_PRIVATE_KEY_DEVELOPMENT }}
+
+        - name: Add hosts
+          run: |
+                  echo "18.136.247.108 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCFmHonEyfEdEQMWC2X0a4pM7Sn7TwXB74I535IxPsT6BFxFKtOBV6j0YYC8fTh+8YN5HrpG9IcvXPLYKgLIWeHlBIvIOJn7cn8tjkQXAwaJqUVYQV7eCX36h+zkcn8Iv8iBuJ8Hu8VZ+o/0LzqKOuOX2kvS0qFsfAb9ppLLvel/jHJ1qkcLx1grIM4U1g3XFq3Wd7qTig2PE8HsWYIww4q/xIJgLhsIGVY69Ubxm+sOkffpIssf+ArdFVPVj/zDPqpbecG48Kc9RDATcMhG4kLku0x2YPw3gFzjqF6aqSyiGE17B+5Q2J6GTo5djE3v4JPc+iGpvgtyZoTBShDmoQmcdv53O2/sW/33Hcc7qdKgWmuKHS9ZSQuSRHR2gmg5GJJFoWI6x5m7W/V3yM93/tsDR5Wfd8fCzVXcRbWn5TQwV9d9bjeSHWcNRq4JtstecVH8ib2BwGdXJYpqxufBMVXpU54V9A0CHo+4ZGerXK/OEZ+9gbLW6c5gZQ9kKmyAI8=" >> ~/.ssh/known_hosts
+                  echo "18.136.247.108 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBKYzsqIDlCBZ1PjV+la+4YddH6891QRExOny2MCNH/6oYRToaTKys1axhHFSQQYS9/cYvraOKw3Sb0xEmD2FPoA=" >> ~/.ssh/known_hosts
+                  echo "18.136.247.108 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA1JMOVN9TRw3uqdbN6UDhA6uBYIoJGAEbRj1RJtz+pH" >> ~/.ssh/known_hosts
+
+        - name: Deploy
+          run: ssh admin@18.136.247.108 "cd /var/www/microservice.notification.com && sh ./deploy_development.sh"
+
+        - name: Set up Node.js
+          uses: actions/setup-node@v2
+          with:
+            node-version: 'v20.12.2'  # Ensure this matches the Node.js version with which PM2 is installed
+
+        - name: Install PM2
+          run: npm install -g pm2@latest
+
+        - name: Restart application instance
+          run: |
+            source /home/admin/.nvm/nvm.sh  # Source NVM setup script
+            pm2 restart microservice-notification
