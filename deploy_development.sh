@@ -6,8 +6,14 @@ git reset --hard
 git clean -df
 git pull
 
-bash -i -c 'npm install'
-bash -i -c 'pm2 restart microservice-notification'
+# Load nvm and use specific Node.js version
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+npm install
+
+pm2 restart microservice-notification
 
 COMMIT_AUTHOR=$(git log -1 --pretty=%an | cat)
 COMMIT_MESSAGE=$(git log -1 --pretty=%B | cat | tr -d '"' | sed '/^[[:space:]]*$/d')
