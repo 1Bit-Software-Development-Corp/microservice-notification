@@ -87,6 +87,7 @@ io.on('connection', (socket) => {
       var messageObj = data;
       io.emit(socketChatChannel + '_' + messageObj.privateChannel, data);
     }
+    messageObj.created_at = new Date();
     redisPub.publish(socketChatChannel, JSON.stringify(messageObj));
     console.log("Published %s to %s", data.toString('binary'), socketChatChannel);
   });
