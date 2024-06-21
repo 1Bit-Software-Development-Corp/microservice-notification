@@ -73,7 +73,7 @@ io.on('connection', (socket) => {
 
   //Chat Event
   socket.on(socketChatChannel, (data) => {
-    console.log('Message received:', data);
+    console.log('[Debug] Chat channel Message received:', data);
     
     if (useProtobuf) {
       const message = ChatMessage.deserializeBinary(data);
@@ -94,7 +94,7 @@ io.on('connection', (socket) => {
 
   //Like, Comment Event
   socket.on(socketNotifChannel, (data) => {
-    console.log('Notification received:', data);
+    console.log('[Debug] Notification received:', data);
 
     if (useProtobuf) {
       const notification = NotifMessage.deserializeBinary(data);
