@@ -71,11 +71,11 @@ redisPub = new Redis({
 
 const connections = {};
 io.on('connection', (socket) => {
-  let userId;
+  let userId = { current: null };
   console.log('A user connected, socket ID:', socket.id);
 
   socket.on("init-connect", ({ user_id }) => {
-    userId = user_id;
+    userId.current = user_id;
     connections[user_id] = socket;
     console.log('[Connect] User connected:', userId);
   });
@@ -136,8 +136,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', (socket) => {
-    delete connections[userId]
-    console.log('User %s disconnected', userId);
+    delete connections[userId.current]
+    console.log('User %s disconnected', userId.current);
   });
 });
 
