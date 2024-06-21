@@ -137,7 +137,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', (socket) => {
     delete connections[userId.current]
-    console.log('User disconnected', userId);
+    console.log('User disconnected:', userId.current);
   });
 });
 
