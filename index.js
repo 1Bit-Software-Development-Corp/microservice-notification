@@ -77,7 +77,7 @@ io.on('connection', (socket) => {
   socket.on("init-connect", ({ user_id }) => {
     userId = user_id;
     connections[user_id] = socket;
-    console.log('[Connect] User connected:', socket.id);
+    console.log('[Connect] User connected:', userId);
   });
 
   //Chat Event
