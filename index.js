@@ -82,10 +82,10 @@ io.on('connection', (socket) => {
         'from_id': message.getFromUserId(),
         'to_id': message.getToUserId()
       }
-      io.emit(socketChatChannel + '_' + message.getChannelName(), data);
+      socket.emit(socketChatChannel + '_' + message.getChannelName(), data);
     } else {
       var messageObj = data;
-      io.emit(socketChatChannel + '_' + messageObj.privateChannel, data);
+      socket.emit(socketChatChannel + '_' + messageObj.privateChannel, data);
     }
     messageObj.created_at = new Date();
     redisPub.publish(socketChatChannel, JSON.stringify(messageObj));
@@ -103,10 +103,10 @@ io.on('connection', (socket) => {
         'from_id': notification.getFromUserId(),
         'to_id': notification.getToUserId()
       }
-      io.emit(socketChannel + '_' + notification.getToUserId(), notification);
-    }else {
+      socket.emit(socketChannel + '_' + notification.getToUserId(), notification);
+    } else {
       const notificationObj = data;
-      io.emit(socketChannel + '_' + notificationObj.toUserId, notification);
+      socket.emit(socketChannel + '_' + notificationObj.toUserId, notification);
     }
     redisPub.publish(socketNotifChannel, JSON.stringify(notificationObj));
     console.log("Published %s to %s", data.toString('binary'), socketNotifChannel);
