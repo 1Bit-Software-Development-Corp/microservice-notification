@@ -49,10 +49,12 @@ try {
   redisSub.on('message', (channel, message) => {
     const notification = JSON.parse(message);
     console.log(`Received message from ${channel} channel.`, notification);
+    const userId = notification.user_id;
     // Broadcast message to specific user
-    if (channel === socketNotifChannel && connections[notification.user_id]) {
-      connections[notification.user_id].emit(socketNotifChannel + '_' + notification.user_id, notification);
-      console.log(`Message Emitted to  ${socketNotifChannel + '_' + notification.user_id} in FE. message is as follow ${notification}`);
+    if (channel === socketNotifChannel && connections[userId]) {
+      const channelName = socketNotifChannel + '_' + userId;
+      connections[userId].emit(channelName, notification);
+      console.log(`Message Emitted to  ${channelName} in FE.`, notification);
     }
   });
 } catch (error) {
