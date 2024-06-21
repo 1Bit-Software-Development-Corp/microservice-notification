@@ -68,13 +68,22 @@ redisPub = new Redis({
   password: process.env.REDIS_PASSWORD || null,
 });
 //check socket io
+
+const connections = {};
 io.on('connection', (socket) => {
-  console.log('a user connected', socket.id);
+  let userId;
+  console.log('A user connected, socket ID:', socket.id);
+
+  socket.on("Connect", ({ user_id}) => {
+    userId = user_id;
+    connections[user_id] = socket;
+    console.log('[Connect] User connected:', socket.id);
+  })
 
   //Chat Event
   socket.on(socketChatChannel, (data) => {
-    console.log('[Debug] Chat channel Message received:', data);
-    
+    console.log(`[Debug] ${socketChatChannel} message received:`, data);
+    let channelName;
     if (useProtobuf) {
       const message = ChatMessage.deserializeBinary(data);
       var messageObj = {
@@ -82,11 +91,16 @@ io.on('connection', (socket) => {
         'from_id': message.getFromUserId(),
         'to_id': message.getToUserId()
       }
-      socket.emit(socketChatChannel + '_' + message.getChannelName(), data);
+      channelName = socketChatChannel + '_' + message.getChannelName();
     } else {
       var messageObj = data;
-      socket.emit(socketChatChannel + '_' + messageObj.privateChannel, data);
+      channelName = socketChatChannel + '_' + messageObj.privateChannel;
     }
+
+    if (connections[messageObj.to_id]) {
+      connections[messageObj.to_id].emit(channelName, data)
+    }
+
     messageObj.created_at = new Date();
     redisPub.publish(socketChatChannel, JSON.stringify(messageObj));
     console.log("Published %s to %s", data.toString('binary'), socketChatChannel);
@@ -112,7 +126,8 @@ io.on('connection', (socket) => {
     console.log("Published %s to %s", data.toString('binary'), socketNotifChannel);
   });
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', (socket) => {
+    delete connections[userId]
     console.log('user disconnected');
   });
 });
