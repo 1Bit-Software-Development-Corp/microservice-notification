@@ -50,8 +50,8 @@ try {
     console.log(`Received message from ${channel} channel.`);
     const notification = JSON.parse(message);
     // Broadcast message to all connected clients
-    if (channel === socketNotifChannel) {
-      io.emit(socketNotifChannel + '_' + notification.user_id, notification);
+    if (channel === socketNotifChannel && connections[notification.user_id]) {
+      connections[notification.user_id].emit(socketNotifChannel + '_' + notification.user_id, notification);
       console.log(`Message Emitted to  ${socketNotifChannel + '_' + notification.user_id} in FE. message is as follow ${notification}`);
     } 
   });
@@ -74,11 +74,11 @@ io.on('connection', (socket) => {
   let userId;
   console.log('A user connected, socket ID:', socket.id);
 
-  socket.on("Connect", ({ user_id}) => {
+  socket.on("init-connect", ({ user_id }) => {
     userId = user_id;
     connections[user_id] = socket;
     console.log('[Connect] User connected:', socket.id);
-  })
+  });
 
   //Chat Event
   socket.on(socketChatChannel, (data) => {
@@ -108,8 +108,10 @@ io.on('connection', (socket) => {
 
   //Like, Comment Event
   socket.on(socketNotifChannel, (data) => {
-    console.log('[Debug] Notification received:', data);
+    console.log(`[Debug] ${socketNotifChannel} message received:`, data);
 
+    let channelName;
+    let toUserId;
     if (useProtobuf) {
       const notification = NotifMessage.deserializeBinary(data);
       var notificationObj = {
@@ -117,11 +119,18 @@ io.on('connection', (socket) => {
         'from_id': notification.getFromUserId(),
         'to_id': notification.getToUserId()
       }
-      socket.emit(socketChannel + '_' + notification.getToUserId(), notification);
+      toUserId = notification.getToUserId();
+      channelName = socketChannel + '_' + toUserId;
     } else {
       const notificationObj = data;
-      socket.emit(socketChannel + '_' + notificationObj.toUserId, notification);
+      toUserId = notificationObj.toUserId;
+      channelName = socketChannel + '_' + toUserId;
     }
+
+    if (connections[toUserId]) {
+      connections[toUserId].emit(channelName, data);
+    }
+
     redisPub.publish(socketNotifChannel, JSON.stringify(notificationObj));
     console.log("Published %s to %s", data.toString('binary'), socketNotifChannel);
   });
