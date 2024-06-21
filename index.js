@@ -49,7 +49,6 @@ try {
   redisSub.on('message', (channel, message) => {
     const notification = JSON.parse(message);
     console.log(`Received message from ${channel} channel.`, notification);
-    console.log("Connections", Object.keys(connections))
     // Broadcast message to specific user
     if (channel === socketNotifChannel && connections[notification.user_id]) {
       connections[notification.user_id].emit(socketNotifChannel + '_' + notification.user_id, notification);
@@ -77,7 +76,7 @@ io.on('connection', (socket) => {
 
   socket.on("init-connect", ({ user_id }) => {
     userId.current = user_id;
-    connections[user_id.current] = socket;
+    connections[userId.current] = socket;
     console.log('[Connect] User connected:', userId.current);
   });
 
