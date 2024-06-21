@@ -76,7 +76,7 @@ io.on('connection', (socket) => {
 
   socket.on("init-connect", ({ user_id }) => {
     userId.current = user_id;
-    connections[user_id] = socket;
+    connections[user_id.current] = socket;
     console.log('[Connect] User connected:', userId);
   });
 
@@ -137,7 +137,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', (socket) => {
     delete connections[userId.current]
-    console.log('User %s disconnected', userId.current);
+    console.log('User disconnected', userId);
   });
 });
 
