@@ -27,7 +27,7 @@ try {
   redisSub = new Redis({
     port: process.env.REDIS_PORT,
     host: process.env.REDIS_HOST, 
-    db: process.env.REDIS_DB,
+    db: process.env.REDIS_PUB_DB,
     password: process.env.REDIS_PASSWORD || null,
   });
   redisSub.on('connect', () => {
@@ -88,7 +88,7 @@ try {
 redisPub = new Redis({
   port: process.env.REDIS_PORT,
   host: process.env.REDIS_HOST, 
-  db: process.env.REDIS_DB,
+  db: process.env.REDIS_PUB_DB,
   password: process.env.REDIS_PASSWORD || null,
 });
 //check socket io
