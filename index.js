@@ -6,6 +6,7 @@ const Redis = require('ioredis');
 const servicePort = process.env.MICROSERVICE_PORT;
 const socketChatChannel = process.env.SOCKET_CHAT_CHANNEL;
 const socketNotifChannel = process.env.SOCKET_NOTIF_CHANNEL;
+const socketChatContact = process.env.SOCKET_CHAT_CONTACT_CHANNEL;
 const redisChatChannel = process.env.REDIS_CHAT_CHANNEL;
 const redisNotificationChannel = process.env.REDIS_NOTIFICATION_CHANNEL;
 const app = express();
@@ -38,7 +39,7 @@ try {
   });
 
   // Subscribe to Notification
-  redisSub.subscribe(socketNotifChannel, (err, count) => {
+  redisSub.subscribe([socketNotifChannel, socketChatContact], (err, count) => {
     if (err) {
       console.error('Failed to subscribe: %s', err.message);
     } else {
@@ -50,11 +51,32 @@ try {
     const notification = JSON.parse(message);
     console.log(`Received message from ${channel} channel.`, notification);
     const userId = notification.user_id;
+    const userIds = notification.user_ids;
     // Broadcast message to specific user
     if (channel === socketNotifChannel && connections[userId]) {
       const channelName = socketNotifChannel + '_' + userId;
       connections[userId].emit(channelName, notification);
       console.log(`Message Emitted to  ${channelName} in FE.`, notification);
+    }
+    if(channel === socketChatContact) {
+      if (Array.isArray(userIds)) {
+        userIds.forEach(userId => {
+            // Broadcast message to specific user
+            if (channel === socketChatContact && connections[userId]) {
+                const channelName = socketNotifChannel + '_' + userId;
+                connections[userId].emit(channelName, notification);
+                console.log(`Message Emitted to ${channelName} in FE.`, notification);
+            }
+        });
+      } else {
+          // Handle single user ID
+          const userId = notification.user_id;
+          if (channel === socketChatContact && connections[userId]) {
+              const channelName = socketNotifChannel + '_' + userId;
+              connections[userId].emit(channelName, notification);
+              console.log(`Message Emitted to ${channelName} in FE.`, notification);
+          }
+      }
     }
   });
 } catch (error) {
