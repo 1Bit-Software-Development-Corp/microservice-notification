@@ -1,4 +1,4 @@
-# Change to the project directory
+#!/bin/bash
 
 git checkout $SITE_BRANCH
 # Pull the latest changes from the git repository
