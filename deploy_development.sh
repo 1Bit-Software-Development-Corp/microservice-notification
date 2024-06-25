@@ -13,7 +13,7 @@ export NVM_DIR="$HOME/.nvm"
 
 npm install
 
-/home/admin/.nvm/versions/node/v20.12.2/bin/pm2 restart microservice-notification
+pm2 restart 0
 
 COMMIT_AUTHOR=$(git log -1 --pretty=%an | cat)
 COMMIT_MESSAGE=$(git log -1 --pretty=%B | cat | tr -d '"' | sed '/^[[:space:]]*$/d')
