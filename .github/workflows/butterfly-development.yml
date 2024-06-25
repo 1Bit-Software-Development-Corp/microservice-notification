@@ -31,3 +31,23 @@ jobs:
 
         - name: Deploy
           run: ssh admin@18.136.247.108 "cd /var/www/microservice.notification.com && sh ./deploy_development.sh"
+
+        - name: Restart PM2
+          run: ssh admin@18.136.247.108 "pm2 restart microservice-notification"
+
+        - name: Get commit message and author
+        id: git_info
+        run: |
+          COMMIT_AUTHOR=$(git log -1 --pretty=format:"%an")
+          echo "commit_author=$COMMIT_AUTHOR" >> $GITHUB_ENV
+
+        - name: Sent deployment notification
+          if: github.event_name != 'pull_request'
+          env:
+            MESSAGE: |
+              🚀 Deployment Status
+              📦 BE - Butterfly Microservice Notification
+              🌐 URL: https://butterfly-notification.rocketgaming.online
+              📄 Author: ${{ env.commit_author }}
+              📝 Commit: ${{ github.event.head_commit.message }}
+          run: ./notif.sh "$MESSAGE"
