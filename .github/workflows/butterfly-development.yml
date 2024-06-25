@@ -32,7 +32,7 @@ jobs:
         - name: Deploy
           run: |
                   ssh admin@18.136.247.108 "cd /var/www/microservice.notification.com && sh ./deploy_development.sh"
-                  ssh admin@18.136.247.108 "cd /var/www/microservice.notification.com && sh npm install"
+                  ssh admin@18.136.247.108 "cd /var/www/microservice.notification.com && npm install"
 
         - name: Restart PM2
           run: |
