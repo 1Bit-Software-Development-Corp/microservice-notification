@@ -13,9 +13,14 @@ export NVM_DIR="$HOME/.nvm"
 
 npm install
 
-export PATH="$PATH:/home/admin/.nvm/versions/node/v20.12.2/bin"
-pm2 list
-pm2 restart microservice-notification
+# Restart service using pm2
+if pm2 status | grep -q microservice-notification; then
+  echo "Restarting microservice-notification..."
+  pm2 restart microservice-notification
+else
+  echo "Starting microservice-notification..."
+  pm2 start npm --name microservice-notification -- run start:server --env "PORT=3001"
+fi
 
 COMMIT_AUTHOR=$(git log -1 --pretty=%an | cat)
 COMMIT_MESSAGE=$(git log -1 --pretty=%B | cat | tr -d '"' | sed '/^[[:space:]]*$/d')
