@@ -29,35 +29,5 @@ jobs:
                   echo "18.136.247.108 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBKYzsqIDlCBZ1PjV+la+4YddH6891QRExOny2MCNH/6oYRToaTKys1axhHFSQQYS9/cYvraOKw3Sb0xEmD2FPoA=" >> ~/.ssh/known_hosts
                   echo "18.136.247.108 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA1JMOVN9TRw3uqdbN6UDhA6uBYIoJGAEbRj1RJtz+pH" >> ~/.ssh/known_hosts
 
-        - name: Pull latest code
+        - name: Deploy
           run: ssh admin@18.136.247.108 "cd /var/www/microservice.notification.com && sh ./deploy_development.sh"
-
-        - name: Install dependencies and Restart PM2
-          uses: appleboy/ssh-action@master
-          with:
-            host: 18.136.247.108
-            username: admin
-            key: ${{ secrets.SERVER_SSH_PRIVATE_KEY_DEVELOPMENT }}
-            script: |
-              bash -i -c 'cd /var/www/microservice.notificaation.com && npm install && pm2 restart microservice-notification'
-
-        - name: Set commit hash outputs
-          id: vars
-          run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-
-        - name: Get commit message and author
-        id: git_info
-        run: |
-          COMMIT_AUTHOR=$(git log -1 --pretty=format:"%an")
-          echo "commit_author=$COMMIT_AUTHOR" >> $GITHUB_ENV
-
-        - name: Sent deployment notification
-          if: github.event_name != 'pull_request'
-          env:
-            MESSAGE: |
-              🚀 Deployment Status
-              📦 BE - Butterfly Microservice Notification
-              🌐 URL: https://butterfly-notification.rocketgaming.online
-              📄 Author: ${{ env.commit_author }}
-              📝 Commit: ${{ github.event.head_commit.message }}
-          run: ./alert.sh "$MESSAGE"
