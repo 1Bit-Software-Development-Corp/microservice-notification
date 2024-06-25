@@ -2,8 +2,6 @@
 
 set -e
 
-# Change to the project directory
-
 git checkout $SITE_BRANCH
 # Pull the latest changes from the git repository
 git reset --hard
