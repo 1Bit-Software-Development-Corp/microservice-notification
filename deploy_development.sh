@@ -12,6 +12,8 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 npm install
+
+export PATH="$PATH:/home/admin/.nvm/versions/node/v20.12.2/bin"
 pm2 list
 pm2 restart microservice-notification
 
