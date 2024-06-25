@@ -1,6 +1,4 @@
-#!/bin/bash
-
-set -e
+# Change to the project directory
 
 git checkout $SITE_BRANCH
 # Pull the latest changes from the git repository
@@ -15,8 +13,10 @@ export NVM_DIR="$HOME/.nvm"
 
 npm install
 
+/home/admin/.nvm/versions/node/v20.12.2/bin/pm2 restart microservice-notification
+
 COMMIT_AUTHOR=$(git log -1 --pretty=%an | cat)
 COMMIT_MESSAGE=$(git log -1 --pretty=%B | cat | tr -d '"' | sed '/^[[:space:]]*$/d')
 
 
-# ./notif.sh "Butterfly Notification Websocket microservice deployment on Development server completed [${COMMIT_AUTHOR}]: ${COMMIT_MESSAGE}"
+./notif.sh "Butterfly Notification Websocket microservice deployment on Development server completed [${COMMIT_AUTHOR}]: ${COMMIT_MESSAGE}"
