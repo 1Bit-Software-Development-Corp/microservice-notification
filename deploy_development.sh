@@ -2,7 +2,6 @@
 
 set -e
 
-source ~/.bashrc
 # Change to the project directory
 
 git checkout $SITE_BRANCH
