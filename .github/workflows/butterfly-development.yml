@@ -30,4 +30,4 @@ jobs:
                   echo "18.136.247.108 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA1JMOVN9TRw3uqdbN6UDhA6uBYIoJGAEbRj1RJtz+pH" >> ~/.ssh/known_hosts
 
         - name: Deploy
-          run: ssh developer@18.136.247.108 "cd /var/www/microservice.notification.com && sh ./deploy_development.sh"
+          run: ssh admin@18.136.247.108 "cd /var/www/microservice.notification.com && sh ./deploy_development.sh"
