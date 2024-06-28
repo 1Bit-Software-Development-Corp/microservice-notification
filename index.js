@@ -63,7 +63,7 @@ try {
         userIds.forEach(userId => {
             // Broadcast message to specific user
             if (channel === socketChatContact && connections[userId]) {
-                const channelName = socketNotifChannel + '_' + userId;
+                const channelName = socketChatContact + '_' + userId;
                 connections[userId].emit(channelName, notification);
                 console.log(`Message Emitted to ${channelName} in FE.`, notification);
             }
@@ -72,7 +72,7 @@ try {
           // Handle single user ID
           const userId = notification.user_id;
           if (channel === socketChatContact && connections[userId]) {
-              const channelName = socketNotifChannel + '_' + userId;
+              const channelName = socketChatContact + '_' + userId;
               connections[userId].emit(channelName, notification);
               console.log(`Message Emitted to ${channelName} in FE.`, notification);
           }
